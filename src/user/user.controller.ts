@@ -46,7 +46,7 @@ export class UserController {
     return this.userService.remove(+id);
   }
 
-  // contoh penggunaan custom decorator
+  // contoh penggunaan custom decorato
 
   @Get('me')
   getCurrentUser(@CurrentUser() user: any) {

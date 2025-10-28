@@ -18,7 +18,6 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    // Cek apakah email sudah terdaftar
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
@@ -27,10 +26,8 @@ export class AuthService {
       throw new ConflictException('Email sudah terdaftar');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-    // Buat user baru
     const user = await this.prisma.user.create({
       data: {
         email: registerDto.email,
@@ -45,7 +42,6 @@ export class AuthService {
       },
     });
 
-    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email);
 
     return {
@@ -55,7 +51,6 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    // Cari user berdasarkan email
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
     });
@@ -64,7 +59,6 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah');
     }
 
-    // Verifikasi password
     const isPasswordValid = await bcrypt.compare(
       loginDto.password,
       user.password,
@@ -74,7 +68,6 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah');
     }
 
-    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email);
 
     return {
@@ -88,16 +81,38 @@ export class AuthService {
     };
   }
 
-  async refreshToken(userId: number) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+  /**
+   * ✅ Refresh token baru dengan cara aman
+   * @param refreshToken JWT Refresh Token
+   */
+  async refreshToken(refreshToken: string) {
+    try {
+      // 1️⃣ Verifikasi refresh token pakai secret khusus
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET || '',
+      });
 
-    if (!user) {
-      throw new UnauthorizedException('User tidak ditemukan');
+      // 2️⃣ Cari user berdasarkan payload.sub
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User tidak ditemukan');
+      }
+
+      // 3️⃣ Generate token baru
+      const tokens = await this.generateTokens(user.id, user.email);
+
+      return {
+        message: 'Token berhasil diperbarui',
+        ...tokens,
+      };
+    } catch (error) {
+      throw new UnauthorizedException(
+        'Refresh token tidak valid atau sudah kadaluarsa',
+      );
     }
-
-    return this.generateTokens(user.id, user.email);
   }
 
   private async generateTokens(userId: number, email: string) {

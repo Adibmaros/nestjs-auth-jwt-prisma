@@ -10,7 +10,6 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
@@ -34,9 +33,8 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  @UseGuards(AuthGuard('jwt-refresh'))
-  refreshToken(@Request() req, @Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refreshToken(req.user.userId);
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
   }
 
   @Get('profile')
