@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { UserModule } from './user/user.module';
 import { CobaModule } from './coba/coba.module';
+import { KaryawanModule } from './karyawan/karyawan.module';
 
 @Module({
   imports: [
@@ -18,12 +19,14 @@ import { CobaModule } from './coba/coba.module';
     AuthModule,
     UserModule,
     CobaModule,
+    KaryawanModule,
     // UsersModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard, // Global guard - semua route butuh auth kecuali yang pakai @Public()
+      useClass: JwtAuthGuard,
+      // Global guard - semua route butuh auth kecuali yang pakai @Public()
     },
   ],
 })
