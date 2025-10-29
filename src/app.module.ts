@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { UserModule } from './user/user.module';
-import { CobaModule } from './coba/coba.module';
 import { KaryawanModule } from './karyawan/karyawan.module';
 
 @Module({
@@ -18,7 +17,6 @@ import { KaryawanModule } from './karyawan/karyawan.module';
     PrismaModule,
     AuthModule,
     UserModule,
-    CobaModule,
     KaryawanModule,
     // UsersModule,
   ],
