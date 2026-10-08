@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: nestjs_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: belajar_nestjs
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs_auth_app
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: 'mysql://root:rootpassword@db:3306/belajar_nestjs'
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-key-change-this-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-refresh-secret-key}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
+      PORT: ${PORT:-3000}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

@@ -1,98 +1,145 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS Auth JWT & Prisma ORM
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Aplikasi REST API RESTful untuk **Authentication & Authorization** menggunakan **NestJS**, **Prisma ORM**, **MySQL**, **JWT (Access & Refresh Tokens)**, **Role-Based Access Control (RBAC)**, serta mendukung kontainerisasi dengan **Docker Compose**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🚀 Fitur Utama
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- 🔑 **Otentikasi JWT**: Register, Login dengan enkripsi password `bcrypt`, serta mekanisme Refresh Token.
+- 🛡️ **Role-Based Access Control (RBAC)**: Pembatasan akses endpoint berbasis role pengguna (contoh: `admin`, `user`).
+- 👤 **Custom Decorators**:
+  - `@CurrentUser()` untuk mendapatkan data user terotentikasi langsung dari request.
+  - `@Public()` untuk membypass guard pada endpoint publik.
+  - `@Roles(...)` untuk menentukan role yang diizinkan pada handler.
+- 🗄️ **Database & ORM**: Integrasi MySQL menggunakan Prisma ORM.
+- 💼 **Manajemen Data**: Module CRUD `User` dan `Karyawan`.
+- 🐳 **Docker & Docker Compose**: Menjalankan aplikasi NestJS dan MySQL secara terisolasi dan mudah.
 
-## Project setup
+---
 
-```bash
-$ npm install
+## 🛠️ Tech Stack
+
+- **Framework**: [NestJS](https://nestjs.com/) v11
+- **Database ORM**: [Prisma ORM](https://www.prisma.io/) v6
+- **Database**: MySQL 8.0
+- **Authentication**: Passport.js, `@nestjs/jwt`, `bcrypt`
+- **Language**: TypeScript
+- **Containerization**: Docker & Docker Compose
+
+---
+
+## ⚙️ Variabel Lingkungan (`.env`)
+
+Buat berkas `.env` di direktori utama proyek (bisa menyalin dari `.env.example`):
+
+```env
+DATABASE_URL="mysql://root:rootpassword@localhost:3306/belajar_nestjs"
+
+JWT_SECRET="your-super-secret-key-change-this-in-production"
+JWT_EXPIRES_IN="1h"
+
+JWT_REFRESH_SECRET="your-refresh-secret-key"
+JWT_REFRESH_EXPIRES_IN="7d"
+
+PORT=3000
 ```
 
-## Compile and run the project
+---
+
+## 🐳 Cara Menjalankan dengan Docker Compose (Direkomendasikan)
+
+Pastikan Docker Engine / Docker Desktop sudah berjalan di komputer Anda.
 
 ```bash
-# development
-$ npm run start
+# 1. Build & jalankan container (NestJS + MySQL)
+docker compose up --build -d
 
-# watch mode
-$ npm run start:dev
+# 2. Cek log aplikasi & database
+docker compose logs -f
 
-# production mode
-$ npm run start:prod
+# 3. Hentikan container
+docker compose down
 ```
 
-## Run tests
+Aplikasi akan secara otomatis membuat database dan melakukan `prisma db push`, lalu berjalan di `http://localhost:3000`.
+
+---
+
+## 💻 Cara Menjalankan secara Lokal
+
+### 1. Instalasi Dependensi
+```bash
+npm install
+```
+
+### 2. Setup Database & Prisma ORM
+Pastikan service MySQL Anda sudah berjalan lokal, lalu jalankan:
 
 ```bash
-# unit tests
-$ npm run test
+# Generate Prisma Client
+npx prisma generate
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Sinkronkan skema ke database
+npx prisma db push
 ```
 
-## Deployment
+### 3. Jalankan Aplikasi
+```bash
+# Development mode (Watch)
+npm run start:dev
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+# Production mode
+npm run build
+npm run start:prod
+```
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
+
+## 📑 Daftar API Endpoints
+
+### 🔐 Authentication (`/auth`)
+| Method | Endpoint | Access | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/register` | Public | Pendaftaran user baru |
+| `POST` | `/auth/login` | Public | Login & menerima Access Token + Refresh Token |
+| `POST` | `/auth/refresh` | Public | Memperbarui Access Token menggunakan `refresh_token` |
+| `GET` | `/auth/profile` | Authenticated | Mengambil profil user yang sedang login |
+| `GET` | `/auth/me` | Authenticated | Mengambil data user terotentikasi |
+
+### 👤 User (`/user`)
+| Method | Endpoint | Access | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/user` | Authenticated | Menambah user baru |
+| `GET` | `/user` | Authenticated | Mengambil daftar semua user |
+| `GET` | `/user/:id` | Authenticated | Mengambil data user berdasarkan ID |
+| `PATCH` | `/user/:id` | Authenticated | Memperbarui data user berdasarkan ID |
+| `DELETE` | `/user/:id` | Authenticated | Menghapus user berdasarkan ID |
+| `GET` | `/user/public` | Public | Contoh data publik |
+| `GET` | `/user/admin-only` | Admin Only | Contoh endpoint khusus role `admin` |
+
+### 👔 Karyawan (`/karyawan`)
+| Method | Endpoint | Access | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/karyawan` | Authenticated | Menambah data karyawan |
+| `GET` | `/karyawan` | Authenticated | Mengambil daftar karyawan |
+| `GET` | `/karyawan/:id` | Authenticated | Mengambil detail karyawan berdasarkan ID |
+| `PATCH` | `/karyawan/:id` | Authenticated | Update data karyawan |
+| `DELETE` | `/karyawan/:id` | Authenticated | Hapus data karyawan |
+
+---
+
+## 🛠️ Perintah Bermanfaat Prisma
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Membuka GUI Prisma Studio di browser
+npx prisma studio
+
+# Melakukan format pada file schema.prisma
+npx prisma format
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 📄 Lisensi
+[UNLICENSED](LICENSE)
